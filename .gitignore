@@ -1,10 +1,7 @@
 CMakeCache.txt
 
 # Generated CMakeFiles
-CMakeFiles/3.8.1/
-CMakeFiles/CMakeOutput.log
-CMakeFiles/ExtendedKF.dir/
-CMakeFiles/feature_tests.bin
+CMakeFiles/
 
 # Executable file
 ExtendedKF
