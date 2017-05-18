@@ -23,6 +23,9 @@ void KalmanFilter::Init() {
   // Measurement covariance matrix - laser
   R_L_ = MatrixXd(2, 2);
 
+  H_ << 1, 0, 0, 0,
+			  0, 1, 0, 0;
+        
   P_ <<  1, 0, 0, 0,
 	       0, 1, 0, 0,
 	       0, 0, 1000, 0,

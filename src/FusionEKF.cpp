@@ -51,6 +51,14 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // done initializing, no need to predict or update
     is_initialized_ = true;
     previous_timestamp_ = measurement_pack.timestamp_;
+
+    // cout << "x_ = " << ekf_.x_ << endl;
+    // cout << "F_ = " << ekf_.F_ << endl;
+    // cout << "H_ = " << ekf_.H_ << endl;
+    // cout << "Q_ = " << ekf_.Q_ << endl;
+    // cout << "P_ = " << ekf_.P_ << endl;
+    // cout << "R_R_ = " << ekf_.R_R_ << endl;
+    // cout << "R_L_ = " << ekf_.R_L_ << endl;
     return;
   }
 
@@ -65,6 +73,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   //1. Modify the F matrix so that the time is integrated
   ekf_.F_(0,2) = dt;
   ekf_.F_(1,3) = dt;
+  // cout << "F_ = " << ekf_.F_ << endl;
 
   //2. Set the process covariance matrix Q
   float dt2x = dt*dt*noise_ax;
@@ -79,19 +88,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
               dt3x, 0, dt2x, 0,
               0, dt3y, 0, dt2y;
 
+  // cout << "Q_ = " << ekf_.Q_ << endl;
 	//3. Call the Kalman Filter predict() function
 	ekf_.Predict();
+  // cout << "x_ = " << ekf_.x_ << endl;
+  // cout << "P_ = " << ekf_.P_ << endl;
 
   /*****************************************************************************
    *  Update
    ****************************************************************************/
-
-  /**
-   TODO:
-     * Use the sensor type to perform the update step.
-     * Update the state and covariance matrices.
-   */
-
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
@@ -99,6 +104,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   }
 
   // print the output
-  cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
+  // cout << "x_ = " << ekf_.x_ << endl;
+  // cout << "P_ = " << ekf_.P_ << endl;
 }
