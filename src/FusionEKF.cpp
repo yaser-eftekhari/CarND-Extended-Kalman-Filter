@@ -1,5 +1,4 @@
 #include "FusionEKF.h"
-#include "tools.h"
 #include "Eigen/Dense"
 #include <iostream>
 
@@ -52,13 +51,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     is_initialized_ = true;
     previous_timestamp_ = measurement_pack.timestamp_;
 
-    // cout << "x_ = " << ekf_.x_ << endl;
-    // cout << "F_ = " << ekf_.F_ << endl;
-    // cout << "H_ = " << ekf_.H_ << endl;
-    // cout << "Q_ = " << ekf_.Q_ << endl;
-    // cout << "P_ = " << ekf_.P_ << endl;
-    // cout << "R_R_ = " << ekf_.R_R_ << endl;
-    // cout << "R_L_ = " << ekf_.R_L_ << endl;
     return;
   }
 
@@ -88,11 +80,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
               dt3x, 0, dt2x, 0,
               0, dt3y, 0, dt2y;
 
-  // cout << "Q_ = " << ekf_.Q_ << endl;
 	//3. Call the Kalman Filter predict() function
 	ekf_.Predict();
-  // cout << "x_ = " << ekf_.x_ << endl;
-  // cout << "P_ = " << ekf_.P_ << endl;
 
   /*****************************************************************************
    *  Update
@@ -102,8 +91,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   } else {
     ekf_.Update(measurement_pack.raw_measurements_);
   }
-
-  // print the output
-  // cout << "x_ = " << ekf_.x_ << endl;
-  // cout << "P_ = " << ekf_.P_ << endl;
 }

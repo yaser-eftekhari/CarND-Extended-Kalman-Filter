@@ -1,7 +1,10 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+
+using namespace std;
 
 KalmanFilter::KalmanFilter() {}
 
@@ -25,7 +28,7 @@ void KalmanFilter::Init() {
 
   H_ << 1, 0, 0, 0,
 			  0, 1, 0, 0;
-        
+
   P_ <<  1, 0, 0, 0,
 	       0, 1, 0, 0,
 	       0, 0, 1000, 0,
@@ -37,6 +40,9 @@ void KalmanFilter::Init() {
   R_R_ << 0.09, 0, 0,
           0, 0.0009, 0,
           0, 0, 0.09;
+
+  x_size = x_.size();
+  I = MatrixXd::Identity(x_size, x_size);
 }
 
 void KalmanFilter::Predict() {
@@ -56,8 +62,6 @@ void KalmanFilter::Update(const VectorXd &z) {
 
 	//new estimate
 	x_ = x_ + (K * y);
-	long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
 	P_ = (I - K * H_) * P_;
 }
 
@@ -67,17 +71,14 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float vx = x_[2];
   float vy = x_[3];
 
-  float rho = sqrtf(px*px + py*py);
-  float phi = atanf(py/px);
-  float rhoDot = (px*vx + py*vy)/rho;
+  float phi = atan2(py,px);
+  float rho = sqrt(px*px + py*py);
+  float rhoDot;
 
-  /* Normalize phi */
-  while(phi < -M_PI) {
-    phi += M_PI;
-  }
-
-  while(phi > M_PI) {
-    phi -= M_PI;
+  if(rho < 0.0001) {
+    cout << "Error: rho too small." << endl;
+  } else {
+    rhoDot = (px*vx + py*vy)/rho;
   }
 
   VectorXd z_pred = VectorXd(3);
@@ -85,6 +86,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd Hj = tools_.CalculateJacobian(x_);
 
   VectorXd y = z - z_pred;
+  /* Normalize phi */
+  if(y[1] > 0)
+    y[1] = fmod(y[1], M_PI);
+  else
+    y[1] = fmod(y[1], -M_PI);
+
 	MatrixXd Hjt = Hj.transpose();
 	MatrixXd S = Hj * P_ * Hjt + R_R_;
 	MatrixXd Si = S.inverse();
@@ -93,7 +100,5 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
 	//new estimate
 	x_ = x_ + (K * y);
-	long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
 	P_ = (I - K * Hj) * P_;
 }
