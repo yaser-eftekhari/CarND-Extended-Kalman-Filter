@@ -41,7 +41,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       */
       float ro = measurement_pack.raw_measurements_[0];
       float phi = measurement_pack.raw_measurements_[1];
-      ekf_.x_ << ro * cos(phi), ro * sin(phi), 0, 0;
+      const float rho_dot = measurement_pack.raw_measurements_[2];
+      ekf_.x_ << ro * cos(phi), ro * sin(phi), rho_dot * cos(phi), rho_dot * sin(phi);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       ekf_.x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
@@ -68,12 +69,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   // cout << "F_ = " << ekf_.F_ << endl;
 
   //2. Set the process covariance matrix Q
-  float dt2x = dt*dt*noise_ax;
-  float dt2y = dt*dt*noise_ay;
-  float dt3x = dt2x*dt/2.0;
-  float dt3y = dt2y*dt/2.0;
-  float dt4x = dt3x*dt/2.0;
-  float dt4y = dt3y*dt/2.0;
+  const float dt2x = dt*dt*noise_ax;
+  const float dt2y = dt*dt*noise_ay;
+  const float dt3x = dt2x*dt/2.0;
+  const float dt3y = dt2y*dt/2.0;
+  const float dt4x = dt3x*dt/2.0;
+  const float dt4y = dt3y*dt/2.0;
 
   ekf_.Q_ << dt4x, 0, dt3x, 0,
               0, dt4y, 0, dt3y,
